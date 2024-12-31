@@ -26,6 +26,8 @@ module LightJWT
 
       def parse_key_and_options(key_or_options)
         case key_or_options
+        when JWK::Key
+          [key_or_options.public_key, {}]
         when Hash
           [nil, key_or_options]
         else
@@ -34,7 +36,7 @@ module LightJWT
       end
     end
 
-    def initialize(claims: {})
+    def initialize(claims = {})
       @claims = claims
     end
 
@@ -73,7 +75,7 @@ module LightJWT
       jwe = JWE.new(public_key)
       jwe.alg = alg
       jwe.enc = enc
-      jwe.plain_text = claims.to_json
+      jwe.payload = claims
       jwe.encrypt!
     end
 

@@ -8,7 +8,7 @@ RSpec.describe LightJWT::JWE do
   let(:public_key) { private_key.public_key }
   let(:key) { nil }
 
-  let(:plaintext) { 'This is a secret message.' }
+  let(:payload) { { sub: '1234567890', name: 'John Doe' } }
   let(:alg) { 'RSA-OAEP' }
   let(:enc) { 'A256GCM' }
 
@@ -17,10 +17,10 @@ RSpec.describe LightJWT::JWE do
   describe '#encrypt!' do
     let(:key) { public_key }
 
-    it 'encrypts the plaintext into JWE components' do
+    it 'encrypts the payload into JWE components' do
       subject.alg = alg
       subject.enc = enc
-      subject.plain_text = plaintext
+      subject.payload = payload
       subject.encrypt!
 
       expect(subject.encrypted_key).not_to be_nil
@@ -36,16 +36,16 @@ RSpec.describe LightJWT::JWE do
     before do
       jwe.alg = alg
       jwe.enc = enc
-      jwe.plain_text = plaintext
+      jwe.payload = payload
       jwe.encrypt!
     end
 
-    it 'decrypts the encrypted data back to plaintext' do
-      decrypted_jwe = described_class.decode_compact_serialized(jwe.to_s, OpenSSL::PKey::RSA.new(private_key))
+    it 'decrypts the encrypted data back to payload' do
+      decrypted_jwe = described_class.decode_compact_serialized(jwe.to_s, private_key)
 
       decrypted_jwe.decrypt!
 
-      expect(decrypted_jwe.plain_text).to eq(plaintext)
+      expect(decrypted_jwe.payload).to eq(payload)
     end
   end
 
@@ -55,12 +55,12 @@ RSpec.describe LightJWT::JWE do
     before do
       jwe.alg = alg
       jwe.enc = enc
-      jwe.plain_text = plaintext
+      jwe.payload = payload
       jwe.encrypt!
     end
 
     it 'decodes a compact serialized JWE string' do
-      decoded_jwe = described_class.decode_compact_serialized(jwe.to_s, OpenSSL::PKey::RSA.new(private_key))
+      decoded_jwe = described_class.decode_compact_serialized(jwe.to_s, private_key)
 
       expect(decoded_jwe.alg).to eq(alg)
       expect(decoded_jwe.enc).to eq(enc)
@@ -73,7 +73,7 @@ RSpec.describe LightJWT::JWE do
     it 'raises an error for invalid compact serialization' do
       expect do
         described_class.decode_compact_serialized('invalid.string',
-                                                  OpenSSL::PKey::RSA.new(private_key))
+                                                  private_key)
       end.to raise_error(ArgumentError, 'JWT Token must contain exactly 5 segments')
     end
   end
@@ -84,7 +84,7 @@ RSpec.describe LightJWT::JWE do
     it 'returns a valid compact serialization string' do
       subject.alg = alg
       subject.enc = enc
-      subject.plain_text = plaintext
+      subject.payload = payload
       subject.encrypt!
 
       compact_serialized = subject.to_s

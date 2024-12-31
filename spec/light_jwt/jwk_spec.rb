@@ -3,6 +3,8 @@
 require 'spec_helper'
 
 RSpec.describe LightJWT::JWK do
+  let(:claims) { { sub: '1234567890', name: 'John Doe' } }
+
   context 'When the JWK for :sig' do
     context 'is a RSA key' do
       let(:private_key) { OpenSSL::PKey::RSA.new(2048) }
@@ -45,11 +47,11 @@ RSpec.describe LightJWT::JWK do
       it 'success verification' do
         jwk = described_class.new(jwks_uri)
         key = jwk.get('valid-key')
-        jws = LightJWT::JWT.new(claims: { sub: '1234567890', name: 'John Doe' }).sign('RS256', private_key)
+        jws = LightJWT::JWT.new({ sub: '1234567890', name: 'John Doe' }).sign('RS256', private_key)
         jws2 = LightJWT::JWT.decode(jws.to_s, key.public_key)
 
-        expect(jws2.header.to_json).to eq('{"alg":"RS256","typ":"JWT"}')
-        expect(jws2.payload.to_json).to eq('{"sub":"1234567890","name":"John Doe"}')
+        expect(jws2.header).to eq({ alg: 'RS256', typ: 'JWT' })
+        expect(jws2.payload).to eq(claims)
         expect(jws2.signature).not_to be_nil
 
         # Raises an error when the public key is invalid
@@ -122,11 +124,11 @@ RSpec.describe LightJWT::JWK do
       it 'success verification' do
         jwk = described_class.new(jwks_uri)
         key = jwk.get('valid-key')
-        jws = LightJWT::JWT.new(claims: { sub: '1234567890', name: 'John Doe' }).sign('ES256', private_key)
+        jws = LightJWT::JWT.new({ sub: '1234567890', name: 'John Doe' }).sign('ES256', private_key)
         jws2 = LightJWT::JWT.decode(jws.to_s, key.public_key)
 
-        expect(jws2.header.to_json).to eq('{"alg":"ES256","typ":"JWT"}')
-        expect(jws2.payload.to_json).to eq('{"sub":"1234567890","name":"John Doe"}')
+        expect(jws2.header).to eq({ alg: 'ES256', typ: 'JWT' })
+        expect(jws2.payload).to eq(claims)
         expect(jws2.signature).not_to be_nil
       end
     end
@@ -174,7 +176,7 @@ RSpec.describe LightJWT::JWK do
       it 'success to encrypt' do
         jwk = described_class.new(jwks_uri)
         key = jwk.get('valid-key')
-        jwe = LightJWT::JWT.new(claims: { sub: '1234567890', name: 'John Doe' }).encrypt('RSA-OAEP', 'A256GCM', key.public_key)
+        jwe = LightJWT::JWT.new(claims).encrypt('RSA-OAEP', 'A256GCM', key.public_key)
         expect(jwe.to_s.split('.').size).to eq(5)
 
         header, encrypted_key, iv, ciphertext, auth_tag = jwe.to_s.split('.')
@@ -185,8 +187,8 @@ RSpec.describe LightJWT::JWK do
         expect(auth_tag).not_to be_nil
 
         jwe2 = LightJWT::JWT.decode(jwe.to_s, private_key)
-        expect(jwe2.header.to_json).to eq('{"alg":"RSA-OAEP","enc":"A256GCM"}')
-        expect(jwe2.plain_text).to eq('{"sub":"1234567890","name":"John Doe"}')
+        expect(jwe2.header.to_json).to eq({ alg: 'RSA-OAEP', enc: 'A256GCM' }.to_json)
+        expect(jwe2.payload).to eq(claims)
       end
     end
   end

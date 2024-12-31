@@ -5,7 +5,7 @@ require 'base64'
 
 module LightJWT
   class JWE
-    attr_accessor :plain_text, :alg, :enc
+    attr_accessor :payload, :alg, :enc
     attr_reader :encrypted_key, :iv, :ciphertext, :auth_tag, :key, :jwt_token, :header
     
     NUM_OF_SEGMENTS = 5
@@ -25,7 +25,7 @@ module LightJWT
     def encrypt!
       validate_encrypt_requirements!
 
-      result = JWA::JWE.encrypt(alg, enc, plain_text, key)
+      result = JWA::JWE.encrypt(alg, enc, payload.to_json, key)
 
       @header = { alg:, enc: }
       @encrypted_key = result[:encrypted_key]
@@ -39,7 +39,8 @@ module LightJWT
     def decrypt!
       validate_decrypt_requirements!
 
-      @plain_text = JWA::JWE.decrypt(alg, enc, encrypted_key, iv, ciphertext, auth_tag, key)
+      plaintext = JWA::JWE.decrypt(alg, enc, encrypted_key, iv, ciphertext, auth_tag, key)
+      @payload = JSON.parse(plaintext, symbolize_names: true)
 
       self
     end
@@ -49,7 +50,7 @@ module LightJWT
     end
 
     def as_json
-      { payload: plain_text }
+      { payload: }
     end
 
     def extract!
@@ -71,7 +72,7 @@ module LightJWT
     end
 
     def validate_encrypt_requirements!
-      %i[alg enc key plain_text].each do |attr|
+      %i[alg enc key payload].each do |attr|
         raise ArgumentError, "#{attr.to_s.capitalize} must be set" unless instance_variable_get("@#{attr}")
       end
     end
