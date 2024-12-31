@@ -8,17 +8,13 @@ Gem::Specification.new do |spec|
   spec.authors = ['Nguyen Ngoc Hai']
   spec.email = ['ngochai220998@gmail.com']
 
-  spec.summary = 'TODO: Write a short summary, because RubyGems requires one.'
-  spec.description = 'TODO: Write a longer description or delete this line.'
-  spec.homepage = "TODO: Put your gem's website or public repo URL here."
+  spec.summary = 'JSON Web Token implementation in Ruby, compliant with RFC 7519'
+  spec.description = 'Ruby implementation of JWT (JSON Web Token) and its related specifications, compliant with RFC 7515 (JWS), RFC 7516 (JWE), RFC 7517 (JWK), RFC 7518 (JWA), and RFC 7519 (JWT) as much as possible.'
+  spec.homepage = "https://github.com/NgocHai220998/light_jwt"
   spec.license = 'MIT'
   spec.required_ruby_version = '>= 3.0.0'
 
-  spec.metadata['allowed_push_host'] = "TODO: Set to your gem server 'https://example.com'"
-
   spec.metadata['homepage_uri'] = spec.homepage
-  spec.metadata['source_code_uri'] = "TODO: Put your gem's public repo URL here."
-  spec.metadata['changelog_uri'] = "TODO: Put your gem's CHANGELOG.md URL here."
 
   # Specify which files should be added to the gem when it is released.
   # The `git ls-files -z` loads the files in the RubyGem that have been added into git.
