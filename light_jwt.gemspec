@@ -4,7 +4,7 @@ require_relative 'lib/light_jwt/version'
 
 Gem::Specification.new do |spec|
   spec.name = 'light_jwt'
-  spec.version = LightJwt::VERSION
+  spec.version = LightJWT::VERSION
   spec.authors = ['Nguyen Ngoc Hai']
   spec.email = ['ngochai220998@gmail.com']
 
@@ -35,6 +35,10 @@ Gem::Specification.new do |spec|
 
   # Uncomment to register a new dependency of your gem
   # spec.add_dependency "example-gem", "~> 1.0"
+
+  spec.add_dependency 'base64'
+  spec.add_dependency 'json', '~> 2.9.1'
+  spec.add_dependency 'openssl', '~> 3.3.0'
 
   # For more information and examples about making a new gem, check out our
   # guide at: https://bundler.io/guides/creating_gem.html
